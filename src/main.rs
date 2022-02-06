@@ -1,9 +1,13 @@
 #[macro_use]
 extern crate colour;
+extern crate regex;
+extern crate colored;
 
 use std::fs;
 use std::io;
 use std::io::prelude::*;
+use regex::Regex;
+use colored::Colorize;
 
 fn main() {
     let mut path = String::new();
@@ -16,7 +20,8 @@ fn main() {
     path = path.trim().to_string();
     query = query.trim().to_string();
     if path.trim().is_empty() || query.trim().is_empty() {
-        println!("Please enter a valid path and/or query");
+        red_ln!("Filepath and/or query cannot be empty!");
+        pause();
     }
     else {
         yellow_ln!("Searching for {} in {} ...\n", query, path);
@@ -34,48 +39,43 @@ fn string_searcher_main(query: &String, file_path: &String) {
             return;
         }
     }.trim().to_string();
-    let mut count = 0;
     println!("-----------------------------------------------------");
-    for (i, x) in data.split(" ").enumerate() {
-        if x.trim() == query {
-            cyan_ln!("Found \"{}\" in {} [{}]", query, file_path, i);
-            count += 1;
-        }   
+    let mut count = 0;
+    let re = Regex::new(&format!(r"({})", query.trim())[..]).unwrap();
+    for (i, _) in re.captures_iter(&data).enumerate() {
+        count += 1;
+        cyan_ln!("Found \"{}\" in {} [{}]", query, file_path, i);
     }
-    if count == 0 {
-        red_ln!("Could not find \"{}\" in {}", query, file_path);
+    if count != 0 {
+        green_ln!("Found {} occurrence(s) of \"{}\" in {}", count, query, file_path);
     }
     else {
-        green_ln!("Found {} occurrences of \"{}\" in {}", count, query, file_path);
+        red_ln!("Could not find \"{}\" in {}", query, file_path);
     }
     println!("-----------------------------------------------------");
     let highlighted_data = highlight_string(&String::from(data), &query);
+    green_ln!("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     println!("{}", highlighted_data);
+    green_ln!("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 }
 
 fn highlight_string(data: &String, query: &String) -> String {
+    let re = Regex::new(&format!(r"({})", query.trim())[..]).unwrap();
     let mut highlighted_data = String::new();
-    let mut index = 0;
-    for x in data.split(" ") {
-        if x == query {
-            highlighted_data.push_str(&data[index..index + x.len()]);
-            highlighted_data.push_str("\x1b[31m");
-            highlighted_data.push_str(x);
-            highlighted_data.push_str("\x1b[0m");
-            index += x.len();
-        }
-        else {
-            highlighted_data.push_str(x);
-            highlighted_data.push_str(" ");
-        }
+    let mut last_index = 0;
+    for cap in re.captures_iter(&data) {
+        highlighted_data.push_str(&data[last_index..cap.get(0).unwrap().start()]);
+        highlighted_data.push_str(&format!("{}", cap.get(0).unwrap().as_str().green()));
+        last_index = cap.get(0).unwrap().end();
     }
+    highlighted_data.push_str(&data[last_index..]);
     highlighted_data
 }
 
 fn pause() {
     let mut stdin = io::stdin();
     let mut stdout = io::stdout();
-    write!(stdout, "Press any key to continue...").unwrap();
+    write!(stdout, "Press enter to exit ...").unwrap();
     stdout.flush().unwrap();
     let _ = stdin.read(&mut [0u8]).unwrap();
 }
