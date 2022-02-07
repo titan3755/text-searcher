@@ -80,6 +80,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "figlet-rs"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "59893843a423e9726b35a3110cd2be573bc9deddc553b0ff286107189b02d1aa"
+
+[[package]]
 name = "hermit-abi"
 version = "0.1.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -253,8 +259,27 @@ version = "0.1.0"
 dependencies = [
  "colored",
  "colour",
+ "figlet-rs",
  "regex",
+ "term-table",
 ]
+
+[[package]]
+name = "term-table"
+version = "1.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d5e59d7fb313157de2a568be8d81e4d7f9af6e50e697702e8e00190a6566d3b8"
+dependencies = [
+ "lazy_static",
+ "regex",
+ "unicode-width",
+]
+
+[[package]]
+name = "unicode-width"
+version = "0.1.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3ed742d4ea2bd1176e236172c8429aaf54486e7ac098db29ffe6529e0ce50973"
 
 [[package]]
 name = "winapi"
